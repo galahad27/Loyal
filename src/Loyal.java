@@ -1,6 +1,8 @@
 import engine.Engine;
 import engine.IGame;
+import engine.Item;
 import engine.Window;
+import engine.graph.Mesh;
 import game.Renderer;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -8,10 +10,16 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Loyal implements IGame
 {
-	private float color = 0.0f;
 	private final Renderer renderer;
 
-	private int direction = 0;
+	private Item[] items;
+
+	private int displxInc = 0;
+	private int displyInc = 0;
+	private int displzInc = 0;
+	private int scaleInc = 0;
+
+	private float color = 0.0f;
 
 	public Loyal()
 	{
@@ -19,50 +27,90 @@ public class Loyal implements IGame
 	}
 
 	@Override
-	public void init() throws Exception
+	public void init(Window window) throws Exception
 	{
-		this.renderer.init();
+		this.renderer.init(window);
+		float[] positions = new float[]
+		{
+			-0.5f, 0.5f, 0.5f,
+			-0.5f, -0.5f, 0.5f,
+			0.5f, -0.5f, 0.5f,
+			0.5f, 0.5f, 0.5f,
+		};
+		float[] colors = new float[]
+		{
+				0.5f, 0.0f, 0.0f,
+				0.0f, 0.5f, 0.0f,
+				0.0f, 0.0f, 0.5f,
+				0.0f, 0.5f, 0.5f,
+		};
+		int[] indices = new int[]{0,1,3,3,1,2};
+
+		Mesh mesh = new Mesh(positions, colors, indices);
+		Item item = new Item(mesh);
+		item.setPosition(0,0, -2);
+		items = new Item[]{item};
 	}
 	@Override
 	public void input(Window window)
 	{
+		displyInc = 0;
+		displxInc = 0;
+		displzInc = 0;
+		scaleInc = 0;
+
 		if(window.isKeyPressed(GLFW_KEY_UP))
 		{
-			direction = 1;
+			displyInc = 1;
 		}
 		else if(window.isKeyPressed(GLFW_KEY_DOWN))
 		{
-			direction = -1;
+			displyInc = -1;
 		}
-		else
+		else if(window.isKeyPressed(GLFW_KEY_LEFT))
 		{
-			direction = 0;
+			displxInc = -1;
+		}
+		else if(window.isKeyPressed(GLFW_KEY_RIGHT))
+		{
+			displxInc = 1;
+		}
+		else if(window.isKeyPressed(GLFW_KEY_A))
+		{
+			displzInc = -1;
+		}
+		else if(window.isKeyPressed(GLFW_KEY_Q))
+		{
+			displzInc = 1;
+		}
+		else if(window.isKeyPressed(GLFW_KEY_Z))
+		{
+			scaleInc = -1;
+		}
+		else if(window.isKeyPressed(GLFW_KEY_X))
+		{
+			scaleInc = 1;
 		}
 	}
 	@Override
 	public void update(float interval)
 	{
-		color += direction * 0.01f;
-		if(color > 1)
+		for(Item item : Items)
 		{
-			color = 1.0f;
-		}
-		else if(color < 0)
-		{
-			color = 0.0f;
+
 		}
 	}
 	@Override
 	public void render(Window window)
 	{
-		if(window.isResized())
-		{
-			glViewport(0,0, window.getWidth(), window.getHeight());
-			window.setResized(false);
-		}
-
 		window.setClearColor(color, color, color, 0.0f);
-		renderer.clear();
+		renderer.render(window, mesh);
+	}
+	@Override
+	public void clean()
+	{
+		renderer.clean();
+		mesh.clean();
 	}
 
 	public static void main(String[] args)

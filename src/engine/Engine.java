@@ -65,7 +65,6 @@ public class Engine implements Runnable
 				sync();
 			}
 		}
-		this.window.destroy();
 	}
 
 	private void sync()
@@ -98,6 +97,11 @@ public class Engine implements Runnable
 		this.game.render(this.window);
 		this.window.update();
 	}
+	protected  void clean()
+	{
+		this.game.clean();
+		this.window.destroy();
+	}
 
 	@Override
 	public void run()
@@ -110,6 +114,10 @@ public class Engine implements Runnable
 		catch(Exception ex)
 		{
 			ex.printStackTrace();
+		}
+		finally
+		{
+			clean();
 		}
 	}
 }
